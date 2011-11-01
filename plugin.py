@@ -93,12 +93,12 @@ class Repository:
             return None
 
     def get_new_commits(self):
-        result = self.repo.commits_between(self.last_commit, self.branch)
+        result = self.repo.iter_commits(self.branch + '..' + self.last_commit.name_rev, '', max_count=10)
         self.last_commit = self.repo.commit(self.branch)
         return result
 
     def get_recent_commits(self, count):
-        return self.repo.commits(start=self.branch, max_count=count)
+        return self.repo.iter_commits(self.branch, "", max_count=count)
 
     def format_link(self, commit):
         "Return a link to view a given commit, based on config setting."
@@ -130,14 +130,15 @@ class Repository:
         subst = {
             'a': commit.author.name,
             'b': self.branch[self.branch.rfind('/')+1:],
-            'c': commit.id[0:7],
-            'C': commit.id,
+            'c': commit.name_rev[0:7],
+            'C': commit.name_rev,
             'e': commit.author.email,
             'l': self.format_link(commit),
             'm': commit.message.split('\n')[0],
             'n': self.long_name,
             's': self.short_name,
             'u': self.url,
+            'd': commit.committed_date,
             '!': '\x02',
             '%': '%',
         }
